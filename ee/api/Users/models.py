@@ -2,6 +2,7 @@ from django.db import models
 from django.contrib.auth.models import BaseUserManager, AbstractBaseUser
 import re
 from django.contrib.auth.models import PermissionsMixin
+from django.template.defaultfilters import slugify
 
 # Create your models here.
 class Validation:
@@ -77,10 +78,14 @@ class ImageUpload(models.Model):
 
     def __str__(self) -> str:
         return str(self.image)
+    
+    @classmethod
+    def get_default(cls):
+        return cls.objects.first()
 
 
 class User(AbstractBaseUser, PermissionsMixin):
-    email = models.EmailField(unique=True)
+    email = models.EmailField(unique=True, db_index=True)
     first_name = models.CharField(max_length=100, null=True, blank=True)
     last_name = models.CharField(max_length=100, null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
@@ -92,6 +97,10 @@ class User(AbstractBaseUser, PermissionsMixin):
 
     objects = UserManager()
     USERNAME_FIELD = 'email'
+
+    def save(self, *args, **kwargs):
+        self.slug = slugify(self.hiring)
+        super(self.email, self).save(*args, **kwargs)
 
     def __str__(self) -> str:
         return self.email
@@ -106,7 +115,7 @@ class User(AbstractBaseUser, PermissionsMixin):
 
 class UserProfile(models.Model):
     user = models.OneToOneField(User, related_name='profile_name', on_delete=models.CASCADE)
-    picture = models.OneToOneField(ImageUpload, related_name='profile_picture', on_delete=models.CASCADE, null=True, blank=True,)
+    picture = models.ForeignKey(ImageUpload, related_name='profile_picture', on_delete=models.SET_NULL, null=True, blank=True, db_constraint=False)
     date_of_birth = models.DateField()
     phone = models.CharField(max_length=20)
     code_country = models.CharField(max_length=5)
@@ -115,5 +124,7 @@ class UserProfile(models.Model):
 
     def __str__(self) -> str:
         return self.user.email
+    
+        
 
 

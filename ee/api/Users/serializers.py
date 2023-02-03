@@ -8,12 +8,16 @@ class ImageUploadSerializer(serializers.ModelSerializer):
         model = ImageUpload
         fields = ('image',)
 
-
-class UserProfileSerializer(WritableNestedModelSerializer, serializers.ModelSerializer):
-    picture = ImageUploadSerializer(read_only=True)
+class UserProfileSerializer(serializers.ModelSerializer):
     class Meta:
         model = UserProfile
-        fields = ('picture', 'date_of_birth', 'phone', 'code_country')
+        fields = ('date_of_birth', 'phone', 'code_country')
+
+# class UserProfileSerializer(WritableNestedModelSerializer, serializers.ModelSerializer):
+#     # picture = ImageUploadSerializer(read_only=True)
+#     class Meta:
+#         model = UserProfile
+#         fields = ('date_of_birth', 'phone', 'code_country')
 
 
 class UserSerializer(WritableNestedModelSerializer, serializers.ModelSerializer):
